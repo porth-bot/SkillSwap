@@ -1,0 +1,269 @@
+<%# Admin Sessions Management - Monitor and manage all tutoring sessions %>
+
+<div class="admin-layout">
+  <%- include('../../partials/admin-sidebar', { active: 'sessions' }) %>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <div>
+        <h1 class="admin-title">Session Management</h1>
+        <p class="admin-subtitle">Monitor and manage tutoring sessions</p>
+      </div>
+      <div class="admin-header-actions">
+        <a href="/admin/sessions/export?format=csv" class="btn btn-outline">
+          <span>📥</span> Export CSV
+        </a>
+      </div>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-grid stats-grid-4 mb-4">
+      <div class="stat-card compact">
+        <div class="stat-content">
+          <div class="stat-value"><%= stats.pending || 0 %></div>
+          <div class="stat-label">Pending</div>
+        </div>
+      </div>
+      <div class="stat-card compact">
+        <div class="stat-content">
+          <div class="stat-value"><%= stats.scheduled || 0 %></div>
+          <div class="stat-label">Scheduled</div>
+        </div>
+      </div>
+      <div class="stat-card compact">
+        <div class="stat-content">
+          <div class="stat-value"><%= stats.completed || 0 %></div>
+          <div class="stat-label">Completed</div>
+        </div>
+      </div>
+      <div class="stat-card compact">
+        <div class="stat-content">
+          <div class="stat-value"><%= stats.cancelled || 0 %></div>
+          <div class="stat-label">Cancelled</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <form action="/admin/sessions" method="GET" class="filter-form">
+          <div class="filter-row">
+            <div class="form-group">
+              <label class="form-label">Search</label>
+              <input type="text" name="search" class="form-input" placeholder="Student, tutor, or skill..." value="<%= query.search || '' %>">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select name="status" class="form-select">
+                <option value="">All Status</option>
+                <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                <option value="accepted" <%= query.status === 'accepted' ? 'selected' : '' %>>Accepted</option>
+                <option value="scheduled" <%= query.status === 'scheduled' ? 'selected' : '' %>>Scheduled</option>
+                <option value="completed" <%= query.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                <option value="cancelled" <%= query.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                <option value="disputed" <%= query.status === 'disputed' ? 'selected' : '' %>>Disputed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date Range</label>
+              <select name="dateRange" class="form-select">
+                <option value="">All Time</option>
+                <option value="today" <%= query.dateRange === 'today' ? 'selected' : '' %>>Today</option>
+                <option value="week" <%= query.dateRange === 'week' ? 'selected' : '' %>>This Week</option>
+                <option value="month" <%= query.dateRange === 'month' ? 'selected' : '' %>>This Month</option>
+              </select>
+            </div>
+            <div class="form-group filter-actions">
+              <label class="form-label">&nbsp;</label>
+              <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="/admin/sessions" class="btn btn-ghost">Reset</a>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Sessions Table -->
+    <div class="card">
+      <div class="card-body p-0">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Session</th>
+              <th>Student</th>
+              <th>Tutor</th>
+              <th>Skill</th>
+              <th>Date/Time</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (sessions && sessions.length > 0) { %>
+              <% sessions.forEach(session => { %>
+                <tr>
+                  <td>
+                    <a href="/admin/sessions/<%= session._id %>" class="session-id">#<%= session._id.toString().slice(-6).toUpperCase() %></a>
+                  </td>
+                  <td>
+                    <div class="user-cell">
+                      <div class="avatar avatar-sm">
+                        <% if (session.student?.avatar) { %>
+                          <img src="<%= session.student.avatar %>" alt="">
+                        <% } else { %>
+                          <span><%= session.student?.firstName?.charAt(0) || 'S' %></span>
+                        <% } %>
+                      </div>
+                      <span><%= session.student?.firstName %> <%= session.student?.lastName %></span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="user-cell">
+                      <div class="avatar avatar-sm">
+                        <% if (session.tutor?.avatar) { %>
+                          <img src="<%= session.tutor.avatar %>" alt="">
+                        <% } else { %>
+                          <span><%= session.tutor?.firstName?.charAt(0) || 'T' %></span>
+                        <% } %>
+                      </div>
+                      <span><%= session.tutor?.firstName %> <%= session.tutor?.lastName %></span>
+                    </div>
+                  </td>
+                  <td><span class="skill-tag"><%= session.skill %></span></td>
+                  <td>
+                    <% if (session.scheduledDate) { %>
+                      <div class="date-cell">
+                        <span class="date"><%= new Date(session.scheduledDate).toLocaleDateString() %></span>
+                        <span class="time"><%= session.scheduledTime || '' %></span>
+                      </div>
+                    <% } else { %>
+                      <span class="text-muted">Not scheduled</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <span class="badge badge-<%= 
+                      session.status === 'completed' ? 'success' : 
+                      session.status === 'cancelled' ? 'error' : 
+                      session.status === 'disputed' ? 'warning' :
+                      session.status === 'pending' ? 'secondary' : 'primary' 
+                    %>">
+                      <%= session.status %>
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-menu">
+                      <button class="btn btn-ghost btn-sm action-trigger">⋮</button>
+                      <div class="action-dropdown">
+                        <a href="/admin/sessions/<%= session._id %>" class="action-item">
+                          <span>👁</span> View Details
+                        </a>
+                        <% if (session.status === 'disputed') { %>
+                          <a href="/admin/sessions/<%= session._id %>/resolve" class="action-item">
+                            <span>⚖️</span> Resolve Dispute
+                          </a>
+                        <% } %>
+                        <% if (session.status === 'pending' || session.status === 'accepted') { %>
+                          <form action="/admin/sessions/<%= session._id %>/cancel" method="POST" class="action-form">
+                            <button type="submit" class="action-item text-error" onclick="return confirm('Cancel this session?')">
+                              <span>✕</span> Cancel Session
+                            </button>
+                          </form>
+                        <% } %>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7">
+                  <div class="empty-state">
+                    <span class="empty-icon">📅</span>
+                    <h3>No sessions found</h3>
+                    <p>Try adjusting your filters</p>
+                  </div>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+      <nav class="pagination-nav">
+        <a href="?page=<%= Math.max(1, currentPage - 1) %>&<%= queryString %>" 
+           class="pagination-btn <%= currentPage === 1 ? 'disabled' : '' %>">← Previous</a>
+        <div class="pagination-pages">
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <% if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
+              <a href="?page=<%= i %>&<%= queryString %>" class="pagination-page <%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+            <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
+              <span class="pagination-ellipsis">...</span>
+            <% } %>
+          <% } %>
+        </div>
+        <a href="?page=<%= Math.min(totalPages, currentPage + 1) %>&<%= queryString %>" 
+           class="pagination-btn <%= currentPage === totalPages ? 'disabled' : '' %>">Next →</a>
+      </nav>
+    <% } %>
+  </main>
+</div>
+
+<style>
+  .stats-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  @media (max-width: 768px) {
+    .stats-grid-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  .stat-card.compact {
+    padding: 1rem;
+  }
+  
+  .stat-card.compact .stat-value {
+    font-size: var(--text-2xl);
+  }
+  
+  .session-id {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--primary-600);
+    text-decoration: none;
+  }
+  
+  .session-id:hover {
+    text-decoration: underline;
+  }
+  
+  .date-cell {
+    display: flex;
+    flex-direction: column;
+    font-size: var(--text-sm);
+  }
+  
+  .date-cell .time {
+    color: var(--neutral-500);
+  }
+  
+  .filter-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+  }
+  
+  @media (max-width: 768px) {
+    .filter-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

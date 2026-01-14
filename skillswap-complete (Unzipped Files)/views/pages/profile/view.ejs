@@ -1,0 +1,741 @@
+<%# Profile - View user profile %>
+
+<div class="profile-container">
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-cover">
+      <div class="cover-gradient"></div>
+    </div>
+    
+    <div class="profile-header-content">
+      <div class="profile-avatar-section">
+        <div class="avatar avatar-xl">
+          <% if (profile.avatar) { %>
+            <img src="<%= profile.avatar %>" alt="<%= profile.firstName %> <%= profile.lastName %>">
+          <% } else { %>
+            <span><%= profile.firstName.charAt(0) %><%= profile.lastName.charAt(0) %></span>
+          <% } %>
+        </div>
+        <% if (profile.isVerified) { %>
+          <span class="verified-badge-lg" title="Verified Tutor">
+            <i data-lucide="badge-check"></i>
+          </span>
+        <% } %>
+      </div>
+      
+      <div class="profile-info">
+        <h1 class="profile-name">
+          <%= profile.firstName %> <%= profile.lastName %>
+          <% if (profile.role === 'tutor') { %>
+            <span class="role-badge badge badge-primary">Tutor</span>
+          <% } else if (profile.role === 'admin') { %>
+            <span class="role-badge badge badge-danger">Admin</span>
+          <% } %>
+        </h1>
+        <p class="profile-username">@<%= profile.username %></p>
+        
+        <div class="profile-meta">
+          <% if (profile.school) { %>
+            <span class="meta-item">
+              <i data-lucide="school"></i>
+              <%= profile.school %>
+            </span>
+          <% } %>
+          <% if (profile.grade) { %>
+            <span class="meta-item">
+              <i data-lucide="graduation-cap"></i>
+              Grade <%= profile.grade %>
+            </span>
+          <% } %>
+          <span class="meta-item">
+            <i data-lucide="calendar"></i>
+            Joined <%= new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) %>
+          </span>
+        </div>
+      </div>
+      
+      <div class="profile-actions">
+        <% if (user && user._id.toString() === profile._id.toString()) { %>
+          <a href="/profile/edit" class="btn btn-primary">
+            <i data-lucide="edit-2"></i>
+            Edit Profile
+          </a>
+        <% } else if (user) { %>
+          <a href="/messages/<%= profile._id %>" class="btn btn-outline">
+            <i data-lucide="message-square"></i>
+            Message
+          </a>
+          <% if (profile.role === 'tutor' || profile.role === 'admin') { %>
+            <a href="/sessions/request/<%= profile._id %>" class="btn btn-primary">
+              <i data-lucide="calendar-plus"></i>
+              Request Session
+            </a>
+          <% } %>
+        <% } else { %>
+          <a href="/auth/login?redirect=/profile/<%= profile.username %>" class="btn btn-primary">
+            Login to Connect
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Stats -->
+  <div class="profile-stats-bar">
+    <div class="stat-item">
+      <span class="stat-value"><%= profile.completedSessions || 0 %></span>
+      <span class="stat-label">Sessions</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">
+        <% if (profile.averageRating) { %>
+          <%= profile.averageRating.toFixed(1) %>
+          <i data-lucide="star" class="icon-sm text-warning"></i>
+        <% } else { %>
+          N/A
+        <% } %>
+      </span>
+      <span class="stat-label">Rating</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value"><%= profile.totalReviews || 0 %></span>
+      <span class="stat-label">Reviews</span>
+    </div>
+    <% if (profile.skills) { %>
+      <div class="stat-item">
+        <span class="stat-value"><%= profile.skills.length %></span>
+        <span class="stat-label">Skills</span>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="profile-content">
+    <div class="profile-main">
+      <!-- About Section -->
+      <div class="profile-section">
+        <h2 class="section-title">
+          <i data-lucide="user"></i>
+          About
+        </h2>
+        <div class="section-content">
+          <% if (profile.bio) { %>
+            <p class="profile-bio"><%= profile.bio %></p>
+          <% } else { %>
+            <p class="text-muted">No bio provided yet.</p>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Skills Section (for tutors) -->
+      <% if ((profile.role === 'tutor' || profile.role === 'admin') && profile.skills && profile.skills.length > 0) { %>
+        <div class="profile-section">
+          <h2 class="section-title">
+            <i data-lucide="sparkles"></i>
+            Teaching Skills
+          </h2>
+          <div class="section-content">
+            <div class="skills-grid">
+              <% profile.skills.forEach(skill => { %>
+                <div class="skill-card">
+                  <div class="skill-header">
+                    <h3><%= skill.name %></h3>
+                    <span class="badge badge-<%= skill.proficiency === 'expert' ? 'success' : skill.proficiency === 'intermediate' ? 'warning' : 'info' %>">
+                      <%= skill.proficiency %>
+                    </span>
+                  </div>
+                  <% if (skill.description) { %>
+                    <p class="skill-description"><%= skill.description %></p>
+                  <% } %>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- Interests Section -->
+      <% if (profile.interests && profile.interests.length > 0) { %>
+        <div class="profile-section">
+          <h2 class="section-title">
+            <i data-lucide="heart"></i>
+            Learning Interests
+          </h2>
+          <div class="section-content">
+            <div class="interests-list">
+              <% profile.interests.forEach(interest => { %>
+                <a href="/explore?skill=<%= encodeURIComponent(interest) %>" class="interest-tag">
+                  <%= interest %>
+                </a>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- Reviews Section -->
+      <div class="profile-section">
+        <h2 class="section-title">
+          <i data-lucide="message-circle"></i>
+          Reviews
+          <% if (profile.totalReviews > 0) { %>
+            <span class="badge badge-neutral"><%= profile.totalReviews %></span>
+          <% } %>
+        </h2>
+        <div class="section-content">
+          <% if (reviews && reviews.length > 0) { %>
+            <div class="reviews-list">
+              <% reviews.forEach(review => { %>
+                <div class="review-card">
+                  <div class="review-header">
+                    <div class="review-author">
+                      <div class="avatar avatar-sm">
+                        <% if (review.reviewer.avatar) { %>
+                          <img src="<%= review.reviewer.avatar %>" alt="<%= review.reviewer.firstName %>">
+                        <% } else { %>
+                          <span><%= review.reviewer.firstName.charAt(0) %><%= review.reviewer.lastName.charAt(0) %></span>
+                        <% } %>
+                      </div>
+                      <div>
+                        <span class="author-name"><%= review.reviewer.firstName %> <%= review.reviewer.lastName %></span>
+                        <span class="review-date text-muted">
+                          <%= new Date(review.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="review-rating">
+                      <% for (let i = 1; i <= 5; i++) { %>
+                        <i data-lucide="star" class="<%= i <= review.rating ? 'star-filled' : 'star-empty' %>"></i>
+                      <% } %>
+                    </div>
+                  </div>
+                  <% if (review.session && review.session.skill) { %>
+                    <div class="review-skill">
+                      <span class="skill-tag skill-tag-sm"><%= review.session.skill %></span>
+                    </div>
+                  <% } %>
+                  <p class="review-content"><%= review.comment %></p>
+                </div>
+              <% }) %>
+            </div>
+            
+            <% if (profile.totalReviews > reviews.length) { %>
+              <div class="load-more">
+                <a href="/reviews/user/<%= profile._id %>" class="btn btn-outline">
+                  View All Reviews
+                </a>
+              </div>
+            <% } %>
+          <% } else { %>
+            <div class="empty-state">
+              <i data-lucide="message-circle"></i>
+              <p>No reviews yet</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="profile-sidebar">
+      <!-- Availability (for tutors) -->
+      <% if ((profile.role === 'tutor' || profile.role === 'admin') && profile.availability) { %>
+        <div class="sidebar-card">
+          <h3>
+            <i data-lucide="clock"></i>
+            Availability
+          </h3>
+          <div class="availability-list">
+            <% const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']; %>
+            <% days.forEach(day => { %>
+              <% if (profile.availability[day] && profile.availability[day].length > 0) { %>
+                <div class="availability-day">
+                  <span class="day-name"><%= day.charAt(0).toUpperCase() + day.slice(1) %></span>
+                  <span class="day-times">
+                    <%= profile.availability[day].map(slot => `${slot.start}-${slot.end}`).join(', ') %>
+                  </span>
+                </div>
+              <% } %>
+            <% }) %>
+            <% if (!days.some(d => profile.availability[d] && profile.availability[d].length > 0)) { %>
+              <p class="text-muted text-sm">No availability set</p>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- Quick Contact -->
+      <% if (user && user._id.toString() !== profile._id.toString()) { %>
+        <div class="sidebar-card">
+          <h3>
+            <i data-lucide="send"></i>
+            Quick Message
+          </h3>
+          <form action="/messages/<%= profile._id %>/send" method="POST">
+            <textarea 
+              name="message" 
+              rows="3" 
+              placeholder="Send a quick message..."
+              class="form-textarea"
+              required
+            ></textarea>
+            <button type="submit" class="btn btn-primary btn-block">
+              Send Message
+            </button>
+          </form>
+        </div>
+      <% } %>
+
+      <!-- Social Links -->
+      <% if (profile.socialLinks && Object.values(profile.socialLinks).some(v => v)) { %>
+        <div class="sidebar-card">
+          <h3>
+            <i data-lucide="link"></i>
+            Connect
+          </h3>
+          <div class="social-links">
+            <% if (profile.socialLinks.discord) { %>
+              <a href="#" class="social-link" title="Discord: <%= profile.socialLinks.discord %>">
+                <i data-lucide="disc"></i>
+                <span><%= profile.socialLinks.discord %></span>
+              </a>
+            <% } %>
+            <% if (profile.socialLinks.instagram) { %>
+              <a href="https://instagram.com/<%= profile.socialLinks.instagram %>" target="_blank" class="social-link">
+                <i data-lucide="instagram"></i>
+                <span>@<%= profile.socialLinks.instagram %></span>
+              </a>
+            <% } %>
+            <% if (profile.socialLinks.linkedin) { %>
+              <a href="<%= profile.socialLinks.linkedin %>" target="_blank" class="social-link">
+                <i data-lucide="linkedin"></i>
+                <span>LinkedIn</span>
+              </a>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- Report User -->
+      <% if (user && user._id.toString() !== profile._id.toString()) { %>
+        <div class="sidebar-card sidebar-card-muted">
+          <p class="text-sm text-muted">
+            Something wrong? 
+            <a href="/report/user/<%= profile._id %>" class="text-danger">Report this user</a>
+          </p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .profile-header {
+    position: relative;
+    margin-bottom: var(--space-6);
+  }
+
+  .profile-cover {
+    height: 200px;
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  }
+
+  .profile-header-content {
+    display: flex;
+    gap: var(--space-6);
+    padding: 0 var(--space-6);
+    margin-top: -60px;
+    position: relative;
+    flex-wrap: wrap;
+  }
+
+  .profile-avatar-section {
+    position: relative;
+  }
+
+  .avatar-xl {
+    width: 120px;
+    height: 120px;
+    font-size: var(--text-3xl);
+    border: 4px solid var(--white);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .verified-badge-lg {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--primary-500);
+    color: var(--white);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--white);
+  }
+
+  .profile-info {
+    flex: 1;
+    padding-top: 70px;
+  }
+
+  .profile-name {
+    font-size: var(--text-2xl);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .role-badge {
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+
+  .profile-username {
+    color: var(--neutral-500);
+    margin-bottom: var(--space-3);
+  }
+
+  .profile-meta {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--neutral-600);
+  }
+
+  .meta-item i {
+    width: 16px;
+    height: 16px;
+  }
+
+  .profile-actions {
+    padding-top: 70px;
+    display: flex;
+    gap: var(--space-3);
+    align-self: flex-start;
+  }
+
+  .profile-stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-12);
+    padding: var(--space-6);
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin: 0 var(--space-6) var(--space-6);
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-item .stat-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--neutral-900);
+  }
+
+  .stat-item .stat-label {
+    font-size: var(--text-sm);
+    color: var(--neutral-500);
+  }
+
+  .profile-content {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: var(--space-6);
+    padding: 0 var(--space-6) var(--space-6);
+  }
+
+  .profile-section {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-6);
+  }
+
+  .section-title {
+    font-size: var(--text-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--neutral-100);
+  }
+
+  .section-title i {
+    color: var(--primary-500);
+  }
+
+  .profile-bio {
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .skills-grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .skill-card {
+    padding: var(--space-4);
+    background: var(--neutral-50);
+    border-radius: var(--radius-md);
+  }
+
+  .skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+  }
+
+  .skill-header h3 {
+    font-size: var(--text-base);
+  }
+
+  .skill-description {
+    font-size: var(--text-sm);
+    color: var(--neutral-600);
+  }
+
+  .interests-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .interest-tag {
+    display: inline-block;
+    padding: var(--space-2) var(--space-3);
+    background: var(--primary-50);
+    color: var(--primary-700);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    transition: var(--transition-base);
+  }
+
+  .interest-tag:hover {
+    background: var(--primary-100);
+  }
+
+  .reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .review-card {
+    padding: var(--space-4);
+    background: var(--neutral-50);
+    border-radius: var(--radius-md);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-3);
+  }
+
+  .review-author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .author-name {
+    font-weight: 500;
+    display: block;
+  }
+
+  .review-date {
+    font-size: var(--text-xs);
+    display: block;
+  }
+
+  .review-rating {
+    display: flex;
+    gap: 2px;
+  }
+
+  .review-rating i {
+    width: 16px;
+    height: 16px;
+  }
+
+  .star-filled {
+    color: var(--warning-500);
+    fill: var(--warning-500);
+  }
+
+  .star-empty {
+    color: var(--neutral-300);
+  }
+
+  .review-skill {
+    margin-bottom: var(--space-2);
+  }
+
+  .review-content {
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+
+  .load-more {
+    text-align: center;
+    margin-top: var(--space-4);
+  }
+
+  .profile-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .sidebar-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .sidebar-card h3 {
+    font-size: var(--text-base);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .sidebar-card h3 i {
+    color: var(--primary-500);
+  }
+
+  .sidebar-card-muted {
+    background: var(--neutral-50);
+    box-shadow: none;
+  }
+
+  .availability-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .availability-day {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-sm);
+  }
+
+  .day-name {
+    font-weight: 500;
+  }
+
+  .day-times {
+    color: var(--neutral-600);
+  }
+
+  .social-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+    color: var(--neutral-700);
+    text-decoration: none;
+    transition: var(--transition-base);
+  }
+
+  .social-link:hover {
+    background: var(--neutral-100);
+    color: var(--primary-600);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-8);
+    color: var(--neutral-500);
+  }
+
+  .empty-state i {
+    width: 40px;
+    height: 40px;
+    margin-bottom: var(--space-2);
+    opacity: 0.5;
+  }
+
+  @media (max-width: 1024px) {
+    .profile-content {
+      grid-template-columns: 1fr;
+    }
+
+    .profile-sidebar {
+      order: -1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .profile-header-content {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .profile-info {
+      padding-top: var(--space-4);
+    }
+
+    .profile-name {
+      justify-content: center;
+    }
+
+    .profile-meta {
+      justify-content: center;
+    }
+
+    .profile-actions {
+      padding-top: var(--space-4);
+      justify-content: center;
+    }
+
+    .profile-stats-bar {
+      gap: var(--space-6);
+      flex-wrap: wrap;
+    }
+
+    .profile-content {
+      padding: 0 var(--space-4) var(--space-4);
+    }
+  }
+</style>

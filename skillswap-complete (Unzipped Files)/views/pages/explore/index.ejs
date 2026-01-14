@@ -1,0 +1,614 @@
+<%# Explore - Browse tutors and skills %>
+
+<div class="explore-container">
+  <!-- Search Header -->
+  <div class="explore-header">
+    <div class="explore-title">
+      <h1>Find Your Perfect Tutor</h1>
+      <p class="text-muted">Browse <%= totalTutors || 0 %> tutors across <%= totalSkills || 0 %> different skills</p>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="search-section">
+    <form action="/explore" method="GET" class="search-form">
+      <div class="search-input-group">
+        <i data-lucide="search" class="search-icon"></i>
+        <input 
+          type="text" 
+          name="q" 
+          placeholder="Search by skill, subject, or tutor name..." 
+          value="<%= query || '' %>"
+          class="search-input"
+        >
+        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
+      
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="skill">Skill</label>
+          <select name="skill" id="skill" class="form-select">
+            <option value="">All Skills</option>
+            <% if (availableSkills) { %>
+              <% availableSkills.forEach(skill => { %>
+                <option value="<%= skill %>" <%= filters.skill === skill ? 'selected' : '' %>><%= skill %></option>
+              <% }) %>
+            <% } %>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="grade">Grade Level</label>
+          <select name="grade" id="grade" class="form-select">
+            <option value="">Any Grade</option>
+            <option value="9" <%= filters.grade === '9' ? 'selected' : '' %>>9th Grade</option>
+            <option value="10" <%= filters.grade === '10' ? 'selected' : '' %>>10th Grade</option>
+            <option value="11" <%= filters.grade === '11' ? 'selected' : '' %>>11th Grade</option>
+            <option value="12" <%= filters.grade === '12' ? 'selected' : '' %>>12th Grade</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="rating">Minimum Rating</label>
+          <select name="rating" id="rating" class="form-select">
+            <option value="">Any Rating</option>
+            <option value="4.5" <%= filters.rating === '4.5' ? 'selected' : '' %>>4.5+ Stars</option>
+            <option value="4" <%= filters.rating === '4' ? 'selected' : '' %>>4+ Stars</option>
+            <option value="3.5" <%= filters.rating === '3.5' ? 'selected' : '' %>>3.5+ Stars</option>
+            <option value="3" <%= filters.rating === '3' ? 'selected' : '' %>>3+ Stars</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="sort">Sort By</label>
+          <select name="sort" id="sort" class="form-select">
+            <option value="rating" <%= filters.sort === 'rating' ? 'selected' : '' %>>Highest Rated</option>
+            <option value="sessions" <%= filters.sort === 'sessions' ? 'selected' : '' %>>Most Sessions</option>
+            <option value="recent" <%= filters.sort === 'recent' ? 'selected' : '' %>>Recently Active</option>
+            <option value="name" <%= filters.sort === 'name' ? 'selected' : '' %>>Name A-Z</option>
+          </select>
+        </div>
+        
+        <% if (query || filters.skill || filters.grade || filters.rating) { %>
+          <a href="/explore" class="btn btn-ghost clear-filters">
+            <i data-lucide="x"></i>
+            Clear
+          </a>
+        <% } %>
+      </div>
+    </form>
+  </div>
+
+  <!-- Popular Skills Quick Filter -->
+  <div class="popular-skills-bar">
+    <span class="label">Popular:</span>
+    <div class="skill-pills">
+      <a href="/explore?skill=Mathematics" class="skill-pill <%= filters.skill === 'Mathematics' ? 'active' : '' %>">
+        <i data-lucide="calculator"></i> Math
+      </a>
+      <a href="/explore?skill=Physics" class="skill-pill <%= filters.skill === 'Physics' ? 'active' : '' %>">
+        <i data-lucide="atom"></i> Physics
+      </a>
+      <a href="/explore?skill=Chemistry" class="skill-pill <%= filters.skill === 'Chemistry' ? 'active' : '' %>">
+        <i data-lucide="flask-conical"></i> Chemistry
+      </a>
+      <a href="/explore?skill=Biology" class="skill-pill <%= filters.skill === 'Biology' ? 'active' : '' %>">
+        <i data-lucide="leaf"></i> Biology
+      </a>
+      <a href="/explore?skill=English" class="skill-pill <%= filters.skill === 'English' ? 'active' : '' %>">
+        <i data-lucide="book-text"></i> English
+      </a>
+      <a href="/explore?skill=Computer Science" class="skill-pill <%= filters.skill === 'Computer Science' ? 'active' : '' %>">
+        <i data-lucide="code"></i> CS
+      </a>
+      <a href="/explore?skill=History" class="skill-pill <%= filters.skill === 'History' ? 'active' : '' %>">
+        <i data-lucide="landmark"></i> History
+      </a>
+    </div>
+  </div>
+
+  <!-- Results Count -->
+  <div class="results-info">
+    <% if (tutors && tutors.length > 0) { %>
+      <p>Showing <strong><%= tutors.length %></strong> of <strong><%= totalResults || tutors.length %></strong> tutors
+        <% if (query) { %>for "<%= query %>"<% } %>
+        <% if (filters.skill) { %>in <strong><%= filters.skill %></strong><% } %>
+      </p>
+    <% } %>
+  </div>
+
+  <!-- Tutor Grid -->
+  <div class="tutor-grid">
+    <% if (tutors && tutors.length > 0) { %>
+      <% tutors.forEach(tutor => { %>
+        <div class="tutor-card fade-in-up">
+          <div class="tutor-card-header">
+            <div class="avatar avatar-lg">
+              <% if (tutor.avatar) { %>
+                <img src="<%= tutor.avatar %>" alt="<%= tutor.firstName %> <%= tutor.lastName %>">
+              <% } else { %>
+                <span><%= tutor.firstName.charAt(0) %><%= tutor.lastName.charAt(0) %></span>
+              <% } %>
+            </div>
+            <% if (tutor.isVerified) { %>
+              <span class="verified-badge" title="Verified Tutor">
+                <i data-lucide="badge-check"></i>
+              </span>
+            <% } %>
+          </div>
+          
+          <div class="tutor-card-body">
+            <h3 class="tutor-name"><%= tutor.firstName %> <%= tutor.lastName %></h3>
+            <p class="tutor-school text-muted"><%= tutor.school || 'School not specified' %></p>
+            
+            <div class="tutor-stats">
+              <div class="tutor-stat">
+                <i data-lucide="star" class="icon-sm text-warning"></i>
+                <span><%= tutor.averageRating ? tutor.averageRating.toFixed(1) : 'New' %></span>
+                <% if (tutor.totalReviews > 0) { %>
+                  <span class="text-muted">(<%= tutor.totalReviews %>)</span>
+                <% } %>
+              </div>
+              <div class="tutor-stat">
+                <i data-lucide="book-open" class="icon-sm"></i>
+                <span><%= tutor.completedSessions || 0 %> sessions</span>
+              </div>
+            </div>
+            
+            <div class="tutor-skills">
+              <% if (tutor.skills && tutor.skills.length > 0) { %>
+                <% tutor.skills.slice(0, 3).forEach(skill => { %>
+                  <span class="skill-tag skill-tag-sm"><%= skill.name %></span>
+                <% }) %>
+                <% if (tutor.skills.length > 3) { %>
+                  <span class="skill-tag skill-tag-sm skill-tag-more">+<%= tutor.skills.length - 3 %></span>
+                <% } %>
+              <% } else { %>
+                <span class="text-muted text-sm">No skills listed</span>
+              <% } %>
+            </div>
+            
+            <% if (tutor.bio) { %>
+              <p class="tutor-bio"><%= tutor.bio.substring(0, 100) %><%= tutor.bio.length > 100 ? '...' : '' %></p>
+            <% } %>
+          </div>
+          
+          <div class="tutor-card-footer">
+            <a href="/profile/<%= tutor.username %>" class="btn btn-outline btn-block">View Profile</a>
+            <% if (user && user._id.toString() !== tutor._id.toString()) { %>
+              <a href="/sessions/request/<%= tutor._id %>" class="btn btn-primary btn-block">Request Session</a>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="no-results">
+        <div class="no-results-icon">
+          <i data-lucide="search-x"></i>
+        </div>
+        <h3>No tutors found</h3>
+        <p class="text-muted">
+          <% if (query || filters.skill || filters.grade || filters.rating) { %>
+            Try adjusting your search filters or <a href="/explore">clear all filters</a>
+          <% } else { %>
+            Be the first to become a tutor! <a href="/profile/upgrade">Upgrade your account</a>
+          <% } %>
+        </p>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Pagination -->
+  <% if (pagination && pagination.totalPages > 1) { %>
+    <div class="pagination-container">
+      <nav class="pagination">
+        <% if (pagination.hasPrev) { %>
+          <a href="/explore?<%= new URLSearchParams({ ...filters, page: pagination.currentPage - 1 }).toString() %>" class="pagination-btn">
+            <i data-lucide="chevron-left"></i>
+            Previous
+          </a>
+        <% } else { %>
+          <span class="pagination-btn disabled">
+            <i data-lucide="chevron-left"></i>
+            Previous
+          </span>
+        <% } %>
+        
+        <div class="pagination-numbers">
+          <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+            <% if (i === 1 || i === pagination.totalPages || (i >= pagination.currentPage - 2 && i <= pagination.currentPage + 2)) { %>
+              <a href="/explore?<%= new URLSearchParams({ ...filters, page: i }).toString() %>" 
+                 class="pagination-num <%= i === pagination.currentPage ? 'active' : '' %>">
+                <%= i %>
+              </a>
+            <% } else if (i === pagination.currentPage - 3 || i === pagination.currentPage + 3) { %>
+              <span class="pagination-ellipsis">...</span>
+            <% } %>
+          <% } %>
+        </div>
+        
+        <% if (pagination.hasNext) { %>
+          <a href="/explore?<%= new URLSearchParams({ ...filters, page: pagination.currentPage + 1 }).toString() %>" class="pagination-btn">
+            Next
+            <i data-lucide="chevron-right"></i>
+          </a>
+        <% } else { %>
+          <span class="pagination-btn disabled">
+            Next
+            <i data-lucide="chevron-right"></i>
+          </span>
+        <% } %>
+      </nav>
+    </div>
+  <% } %>
+</div>
+
+<style>
+  .explore-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-6);
+  }
+
+  .explore-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+  }
+
+  .explore-header h1 {
+    font-size: var(--text-4xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .search-section {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--space-6);
+  }
+
+  .search-input-group {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--neutral-400);
+    pointer-events: none;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: var(--space-4) var(--space-4) var(--space-4) var(--space-12);
+    font-size: var(--text-lg);
+    border: 2px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+    transition: var(--transition-base);
+  }
+
+  .search-input:focus {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
+  }
+
+  .filter-row {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .filter-group {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .filter-group label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    margin-bottom: var(--space-1);
+    color: var(--neutral-600);
+  }
+
+  .clear-filters {
+    flex-shrink: 0;
+  }
+
+  .popular-skills-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+  }
+
+  .popular-skills-bar .label {
+    font-size: var(--text-sm);
+    color: var(--neutral-500);
+    font-weight: 500;
+  }
+
+  .skill-pills {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .skill-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    background: var(--neutral-100);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    color: var(--neutral-700);
+    text-decoration: none;
+    transition: var(--transition-base);
+  }
+
+  .skill-pill:hover,
+  .skill-pill.active {
+    background: var(--primary-100);
+    color: var(--primary-700);
+  }
+
+  .results-info {
+    margin-bottom: var(--space-4);
+    color: var(--neutral-600);
+  }
+
+  .tutor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+
+  .tutor-card {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: var(--transition-base);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tutor-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .tutor-card-header {
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+    padding: var(--space-6);
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+
+  .tutor-card-header .avatar {
+    border: 4px solid var(--white);
+    box-shadow: var(--shadow-md);
+  }
+
+  .verified-badge {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    color: var(--white);
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    padding: var(--space-1);
+  }
+
+  .tutor-card-body {
+    padding: var(--space-5);
+    flex: 1;
+  }
+
+  .tutor-name {
+    font-size: var(--text-xl);
+    text-align: center;
+    margin-bottom: var(--space-1);
+  }
+
+  .tutor-school {
+    text-align: center;
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-4);
+  }
+
+  .tutor-stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-6);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--neutral-100);
+  }
+
+  .tutor-stat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+  }
+
+  .tutor-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: center;
+    margin-bottom: var(--space-3);
+  }
+
+  .skill-tag-sm {
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .skill-tag-more {
+    background: var(--neutral-200);
+    color: var(--neutral-600);
+  }
+
+  .tutor-bio {
+    font-size: var(--text-sm);
+    color: var(--neutral-600);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .tutor-card-footer {
+    padding: var(--space-4);
+    border-top: 1px solid var(--neutral-100);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--space-16);
+  }
+
+  .no-results-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--space-4);
+    background: var(--neutral-100);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neutral-400);
+  }
+
+  .no-results-icon i {
+    width: 40px;
+    height: 40px;
+  }
+
+  .no-results h3 {
+    margin-bottom: var(--space-2);
+  }
+
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-4);
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-md);
+    color: var(--neutral-700);
+    text-decoration: none;
+    transition: var(--transition-base);
+  }
+
+  .pagination-btn:hover:not(.disabled) {
+    background: var(--neutral-50);
+    border-color: var(--primary-300);
+    color: var(--primary-600);
+  }
+
+  .pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination-numbers {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .pagination-num {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-md);
+    color: var(--neutral-700);
+    text-decoration: none;
+    transition: var(--transition-base);
+  }
+
+  .pagination-num:hover {
+    background: var(--neutral-50);
+    border-color: var(--primary-300);
+  }
+
+  .pagination-num.active {
+    background: var(--primary-500);
+    border-color: var(--primary-500);
+    color: var(--white);
+  }
+
+  .pagination-ellipsis {
+    padding: 0 var(--space-2);
+    color: var(--neutral-400);
+  }
+
+  @media (max-width: 768px) {
+    .explore-container {
+      padding: var(--space-4);
+    }
+
+    .search-input-group {
+      flex-direction: column;
+    }
+
+    .search-input {
+      padding-left: var(--space-12);
+    }
+
+    .filter-row {
+      flex-direction: column;
+    }
+
+    .filter-group {
+      width: 100%;
+    }
+
+    .tutor-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pagination {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .pagination-numbers {
+      order: -1;
+      width: 100%;
+      justify-content: center;
+      margin-bottom: var(--space-2);
+    }
+  }
+</style>
