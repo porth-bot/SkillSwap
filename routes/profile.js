@@ -94,8 +94,7 @@ router.get('/edit', isAuthenticated, async (req, res) => {
 /**
  * POST /profile/edit - Update profile
  */
-router.post('/edit', isAuthenticated, validateProfileUpdate, async (req, res) => {
-    try {
+router.post('/edit', isAuthenticated, async (req, res) => {    try {
         const user = await User.findById(req.session.userId);
         const previousValues = {
             firstName: user.firstName,
