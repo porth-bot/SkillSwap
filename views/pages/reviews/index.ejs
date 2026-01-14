@@ -1,0 +1,300 @@
+<%# Reviews - User reviews received and given %>
+
+<div class="container py-6">
+  <header class="page-header mb-6">
+    <div>
+      <h1 class="page-title">Reviews</h1>
+      <p class="page-subtitle">Feedback from your tutoring sessions</p>
+    </div>
+  </header>
+
+  <!-- Review Stats -->
+  <div class="stats-grid mb-6">
+    <div class="stat-card">
+      <div class="stat-icon" style="background: var(--warning-100); color: var(--warning-600);">⭐</div>
+      <div class="stat-content">
+        <div class="stat-value"><%= (stats.averageRating || 0).toFixed(1) %></div>
+        <div class="stat-label">Average Rating</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: var(--primary-100); color: var(--primary-600);">📝</div>
+      <div class="stat-content">
+        <div class="stat-value"><%= stats.received || 0 %></div>
+        <div class="stat-label">Reviews Received</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: var(--success-100); color: var(--success-600);">✓</div>
+      <div class="stat-content">
+        <div class="stat-value"><%= stats.given || 0 %></div>
+        <div class="stat-label">Reviews Given</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs mb-4">
+    <a href="/reviews?tab=received" class="tab <%= !query.tab || query.tab === 'received' ? 'active' : '' %>">
+      Reviews Received (<%= stats.received || 0 %>)
+    </a>
+    <a href="/reviews?tab=given" class="tab <%= query.tab === 'given' ? 'active' : '' %>">
+      Reviews Given (<%= stats.given || 0 %>)
+    </a>
+    <a href="/reviews?tab=pending" class="tab <%= query.tab === 'pending' ? 'active' : '' %>">
+      Pending (<%= stats.pending || 0 %>)
+    </a>
+  </div>
+
+  <!-- Reviews List -->
+  <div class="reviews-list">
+    <% if (reviews && reviews.length > 0) { %>
+      <% reviews.forEach(review => { %>
+        <div class="card review-card mb-4">
+          <div class="card-body">
+            <div class="review-header">
+              <div class="review-user">
+                <div class="avatar">
+                  <% const otherUser = query.tab === 'given' ? review.reviewee : review.reviewer; %>
+                  <% if (otherUser?.avatar) { %>
+                    <img src="<%= otherUser.avatar %>" alt="">
+                  <% } else { %>
+                    <span><%= otherUser?.firstName?.charAt(0) || '?' %></span>
+                  <% } %>
+                </div>
+                <div>
+                  <a href="/profile/<%= otherUser?.username %>" class="user-name">
+                    <%= otherUser?.firstName %> <%= otherUser?.lastName %>
+                  </a>
+                  <p class="review-meta">
+                    <% if (query.tab === 'given') { %>
+                      You reviewed • <%= new Date(review.createdAt).toLocaleDateString() %>
+                    <% } else { %>
+                      Reviewed you • <%= new Date(review.createdAt).toLocaleDateString() %>
+                    <% } %>
+                  </p>
+                </div>
+              </div>
+              <div class="review-rating">
+                <div class="rating-display">
+                  <% for (let i = 1; i <= 5; i++) { %>
+                    <span class="star <%= i <= review.rating ? 'filled' : '' %>">★</span>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+
+            <% if (review.session) { %>
+              <div class="review-session">
+                <span class="skill-tag"><%= review.session.skill %></span>
+                <span class="session-info">
+                  Session on <%= new Date(review.session.scheduledDate).toLocaleDateString() %>
+                </span>
+              </div>
+            <% } %>
+
+            <div class="review-content">
+              <p><%= review.comment %></p>
+            </div>
+
+            <% if (query.tab === 'given') { %>
+              <div class="review-actions">
+                <a href="/reviews/<%= review._id %>/edit" class="btn btn-ghost btn-sm">Edit</a>
+                <form action="/reviews/<%= review._id %>/delete" method="POST" style="display: inline;">
+                  <button type="submit" class="btn btn-ghost btn-sm text-error" onclick="return confirm('Delete this review?')">Delete</button>
+                </form>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% }); %>
+    <% } else if (query.tab === 'pending') { %>
+      <!-- Pending Reviews -->
+      <% if (pendingSessions && pendingSessions.length > 0) { %>
+        <% pendingSessions.forEach(session => { %>
+          <div class="card pending-review-card mb-4">
+            <div class="card-body">
+              <div class="pending-header">
+                <div class="review-user">
+                  <div class="avatar">
+                    <% const sessionPartner = session.student._id.toString() === user._id.toString() ? session.tutor : session.student; %>
+                    <% if (sessionPartner?.avatar) { %>
+                      <img src="<%= sessionPartner.avatar %>" alt="">
+                    <% } else { %>
+                      <span><%= sessionPartner?.firstName?.charAt(0) || '?' %></span>
+                    <% } %>
+                  </div>
+                  <div>
+                    <span class="user-name"><%= sessionPartner?.firstName %> <%= sessionPartner?.lastName %></span>
+                    <p class="review-meta">
+                      <span class="skill-tag small"><%= session.skill %></span>
+                      Session on <%= new Date(session.scheduledDate).toLocaleDateString() %>
+                    </p>
+                  </div>
+                </div>
+                <a href="/reviews/new/<%= session._id %>" class="btn btn-primary">
+                  Write Review
+                </a>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="card">
+          <div class="card-body">
+            <div class="empty-state">
+              <span class="empty-icon">✓</span>
+              <h3>All caught up!</h3>
+              <p>You have no pending reviews</p>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    <% } else { %>
+      <div class="card">
+        <div class="card-body">
+          <div class="empty-state">
+            <span class="empty-icon">⭐</span>
+            <h3>No reviews yet</h3>
+            <p><%= query.tab === 'given' ? 'You haven\'t written any reviews yet' : 'You haven\'t received any reviews yet' %></p>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Pagination -->
+  <% if (totalPages > 1) { %>
+    <nav class="pagination-nav">
+      <a href="?page=<%= Math.max(1, currentPage - 1) %>&tab=<%= query.tab || 'received' %>" 
+         class="pagination-btn <%= currentPage === 1 ? 'disabled' : '' %>">← Previous</a>
+      <div class="pagination-pages">
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <a href="?page=<%= i %>&tab=<%= query.tab || 'received' %>" 
+             class="pagination-page <%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+        <% } %>
+      </div>
+      <a href="?page=<%= Math.min(totalPages, currentPage + 1) %>&tab=<%= query.tab || 'received' %>" 
+         class="pagination-btn <%= currentPage === totalPages ? 'disabled' : '' %>">Next →</a>
+    </nav>
+  <% } %>
+</div>
+
+<style>
+  .review-card {
+    transition: var(--transition-base);
+  }
+  
+  .review-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  
+  .review-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    color: var(--neutral-800);
+    text-decoration: none;
+  }
+  
+  .user-name:hover {
+    color: var(--primary-600);
+  }
+  
+  .review-meta {
+    font-size: var(--text-sm);
+    color: var(--neutral-500);
+    margin: 0;
+  }
+  
+  .rating-display {
+    display: flex;
+    gap: 0.125rem;
+  }
+  
+  .star {
+    color: var(--neutral-300);
+    font-size: 1.25rem;
+  }
+  
+  .star.filled {
+    color: var(--warning-400);
+  }
+  
+  .review-session {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--neutral-50);
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+  }
+  
+  .session-info {
+    font-size: var(--text-sm);
+    color: var(--neutral-600);
+  }
+  
+  .review-content {
+    color: var(--neutral-700);
+    line-height: 1.6;
+  }
+  
+  .review-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--neutral-100);
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .pending-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .skill-tag.small {
+    font-size: var(--text-xs);
+    padding: 0.125rem 0.375rem;
+  }
+  
+  .tabs {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--neutral-200);
+  }
+  
+  .tab {
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    color: var(--neutral-600);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: var(--transition-fast);
+  }
+  
+  .tab:hover {
+    color: var(--neutral-800);
+  }
+  
+  .tab.active {
+    color: var(--primary-600);
+    border-bottom-color: var(--primary-500);
+  }
+</style>

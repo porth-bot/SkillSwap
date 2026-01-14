@@ -1,0 +1,368 @@
+<%# Admin Reports - Analytics and Data Export %>
+
+<div class="admin-layout">
+  <%- include('../../partials/admin-sidebar', { active: 'reports' }) %>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <div>
+        <h1 class="admin-title">Reports & Analytics</h1>
+        <p class="admin-subtitle">Platform insights and data exports</p>
+      </div>
+    </header>
+
+    <!-- Report Types -->
+    <div class="reports-grid">
+      <!-- User Reports -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">👥 User Reports</h3>
+        </div>
+        <div class="card-body">
+          <p class="report-description">Export user data, registration trends, and engagement metrics.</p>
+          
+          <div class="report-options">
+            <div class="form-group">
+              <label class="form-label">Date Range</label>
+              <select class="form-select" id="userDateRange">
+                <option value="all">All Time</option>
+                <option value="month">Last Month</option>
+                <option value="quarter">Last Quarter</option>
+                <option value="year">Last Year</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Include</label>
+              <div class="checkbox-group">
+                <label class="form-checkbox-label">
+                  <input type="checkbox" class="form-checkbox" checked> Contact Info
+                </label>
+                <label class="form-checkbox-label">
+                  <input type="checkbox" class="form-checkbox" checked> Activity Stats
+                </label>
+                <label class="form-checkbox-label">
+                  <input type="checkbox" class="form-checkbox"> Session History
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="report-actions">
+            <a href="/admin/reports/users?format=csv" class="btn btn-outline">
+              <span>📄</span> Export CSV
+            </a>
+            <a href="/admin/reports/users?format=xlsx" class="btn btn-outline">
+              <span>📊</span> Export Excel
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session Reports -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📅 Session Reports</h3>
+        </div>
+        <div class="card-body">
+          <p class="report-description">Session statistics, completion rates, and scheduling patterns.</p>
+          
+          <div class="report-options">
+            <div class="form-group">
+              <label class="form-label">Date Range</label>
+              <select class="form-select" id="sessionDateRange">
+                <option value="all">All Time</option>
+                <option value="month">Last Month</option>
+                <option value="quarter">Last Quarter</option>
+                <option value="year">Last Year</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status Filter</label>
+              <select class="form-select">
+                <option value="all">All Sessions</option>
+                <option value="completed">Completed Only</option>
+                <option value="cancelled">Cancelled Only</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="report-actions">
+            <a href="/admin/reports/sessions?format=csv" class="btn btn-outline">
+              <span>📄</span> Export CSV
+            </a>
+            <a href="/admin/reports/sessions?format=xlsx" class="btn btn-outline">
+              <span>📊</span> Export Excel
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills Reports -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">🎯 Skills Reports</h3>
+        </div>
+        <div class="card-body">
+          <p class="report-description">Popular skills, tutor availability, and demand analysis.</p>
+          
+          <div class="report-stats">
+            <div class="report-stat">
+              <span class="stat-value"><%= stats.totalSkills || 0 %></span>
+              <span class="stat-label">Total Skills</span>
+            </div>
+            <div class="report-stat">
+              <span class="stat-value"><%= stats.avgTutorsPerSkill || 0 %></span>
+              <span class="stat-label">Avg Tutors/Skill</span>
+            </div>
+          </div>
+          
+          <div class="report-actions">
+            <a href="/admin/reports/skills?format=csv" class="btn btn-outline">
+              <span>📄</span> Export CSV
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review Reports -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">⭐ Review Reports</h3>
+        </div>
+        <div class="card-body">
+          <p class="report-description">Rating distributions, sentiment analysis, and feedback trends.</p>
+          
+          <div class="report-stats">
+            <div class="report-stat">
+              <span class="stat-value"><%= (stats.avgRating || 0).toFixed(1) %></span>
+              <span class="stat-label">Avg Rating</span>
+            </div>
+            <div class="report-stat">
+              <span class="stat-value"><%= stats.totalReviews || 0 %></span>
+              <span class="stat-label">Total Reviews</span>
+            </div>
+          </div>
+          
+          <div class="report-actions">
+            <a href="/admin/reports/reviews?format=csv" class="btn btn-outline">
+              <span>📄</span> Export CSV
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform Overview -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h3 class="card-title">📈 Platform Overview</h3>
+        <div class="card-actions">
+          <select class="form-select" style="width: auto;" id="overviewPeriod">
+            <option value="7">Last 7 Days</option>
+            <option value="30" selected>Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+          </select>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="overview-grid">
+          <div class="overview-stat">
+            <div class="overview-icon">👤</div>
+            <div class="overview-content">
+              <span class="overview-value"><%= overview.newUsers || 0 %></span>
+              <span class="overview-label">New Users</span>
+              <span class="overview-change positive">+<%= overview.userGrowth || 0 %>%</span>
+            </div>
+          </div>
+          <div class="overview-stat">
+            <div class="overview-icon">📅</div>
+            <div class="overview-content">
+              <span class="overview-value"><%= overview.newSessions || 0 %></span>
+              <span class="overview-label">Sessions Created</span>
+              <span class="overview-change positive">+<%= overview.sessionGrowth || 0 %>%</span>
+            </div>
+          </div>
+          <div class="overview-stat">
+            <div class="overview-icon">✓</div>
+            <div class="overview-content">
+              <span class="overview-value"><%= overview.completedSessions || 0 %></span>
+              <span class="overview-label">Completed</span>
+              <span class="overview-change"><%= overview.completionRate || 0 %>% rate</span>
+            </div>
+          </div>
+          <div class="overview-stat">
+            <div class="overview-icon">⭐</div>
+            <div class="overview-content">
+              <span class="overview-value"><%= overview.newReviews || 0 %></span>
+              <span class="overview-label">New Reviews</span>
+              <span class="overview-change"><%= (overview.avgNewRating || 0).toFixed(1) %> avg</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full Data Export -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h3 class="card-title">💾 Full Data Export</h3>
+      </div>
+      <div class="card-body">
+        <p class="text-muted mb-3">Download a complete backup of all platform data. This may take a few minutes for large datasets.</p>
+        
+        <div class="export-options">
+          <a href="/admin/reports/export/full?format=json" class="btn btn-primary">
+            <span>📦</span> Export All Data (JSON)
+          </a>
+          <a href="/admin/reports/export/full?format=csv" class="btn btn-outline">
+            <span>📁</span> Export All Data (CSV Bundle)
+          </a>
+        </div>
+        
+        <p class="text-sm text-muted mt-3">
+          Last full export: <%= lastExport ? new Date(lastExport).toLocaleString() : 'Never' %>
+        </p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<style>
+  .reports-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 1024px) {
+    .reports-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .report-description {
+    color: var(--neutral-600);
+    margin-bottom: 1.5rem;
+  }
+  
+  .report-options {
+    margin-bottom: 1.5rem;
+  }
+  
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .form-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  
+  .report-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--neutral-50);
+    border-radius: var(--radius-md);
+  }
+  
+  .report-stat {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .report-stat .stat-value {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--neutral-800);
+  }
+  
+  .report-stat .stat-label {
+    font-size: var(--text-sm);
+    color: var(--neutral-500);
+  }
+  
+  .report-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 1024px) {
+    .overview-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .overview-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .overview-stat {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--neutral-50);
+    border-radius: var(--radius-lg);
+  }
+  
+  .overview-icon {
+    font-size: 1.5rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .overview-content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .overview-value {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--neutral-800);
+  }
+  
+  .overview-label {
+    font-size: var(--text-sm);
+    color: var(--neutral-500);
+  }
+  
+  .overview-change {
+    font-size: var(--text-sm);
+    color: var(--neutral-600);
+    margin-top: 0.25rem;
+  }
+  
+  .overview-change.positive {
+    color: var(--success-600);
+  }
+  
+  .export-options {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+</style>

@@ -1,0 +1,232 @@
+<header class="navbar">
+    <div class="navbar-container">
+        <!-- Logo -->
+        <a href="/" class="navbar-brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2.5"/>
+                    <path d="M12 20C12 15.5817 15.5817 12 20 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M28 20C28 24.4183 24.4183 28 20 28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <circle cx="20" cy="12" r="3" fill="currentColor"/>
+                    <circle cx="20" cy="28" r="3" fill="currentColor"/>
+                </svg>
+            </div>
+            <span class="brand-text">SkillSwap</span>
+        </a>
+        
+        <!-- Desktop Navigation -->
+        <nav class="navbar-nav" aria-label="Main navigation">
+            <a href="/explore" class="nav-link <%= currentPath.startsWith('/explore') ? 'active' : '' %>">
+                <i class="fas fa-compass"></i>
+                <span>Explore</span>
+            </a>
+            
+            <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/dashboard" class="nav-link <%= currentPath === '/dashboard' ? 'active' : '' %>">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/sessions" class="nav-link <%= currentPath.startsWith('/sessions') ? 'active' : '' %>">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Sessions</span>
+                </a>
+                <a href="/messages" class="nav-link <%= currentPath.startsWith('/messages') ? 'active' : '' %>">
+                    <i class="fas fa-comments"></i>
+                    <span>Messages</span>
+                    <span class="nav-badge" id="message-badge" style="display: none;">0</span>
+                </a>
+            <% } %>
+        </nav>
+        
+        <!-- Right Side Actions -->
+        <div class="navbar-actions">
+            <% if (typeof user !== 'undefined' && user) { %>
+                <!-- Search Button -->
+                <button class="nav-icon-btn" id="search-toggle" aria-label="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+                
+                <!-- Notifications -->
+                <button class="nav-icon-btn" id="notifications-toggle" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-dot" id="notification-dot" style="display: none;"></span>
+                </button>
+                
+                <!-- User Menu -->
+                <div class="user-menu">
+                    <button class="user-menu-toggle" id="user-menu-toggle" aria-expanded="false" aria-haspopup="true">
+                        <% if (user.avatar) { %>
+                            <img src="<%= user.avatar %>" alt="<%= user.firstName %>" class="user-avatar">
+                        <% } else { %>
+                            <div class="user-avatar user-avatar-placeholder">
+                                <%= user.firstName.charAt(0) %><%= user.lastName.charAt(0) %>
+                            </div>
+                        <% } %>
+                        <span class="user-name"><%= user.firstName %></span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    
+                    <div class="user-menu-dropdown" id="user-menu-dropdown">
+                        <div class="dropdown-header">
+                            <div class="dropdown-user-info">
+                                <span class="dropdown-user-name"><%= user.firstName %> <%= user.lastName %></span>
+                                <span class="dropdown-user-email">@<%= user.username %></span>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="/profile" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            <span>My Profile</span>
+                        </a>
+                        <a href="/dashboard/achievements" class="dropdown-item">
+                            <i class="fas fa-trophy"></i>
+                            <span>Achievements</span>
+                        </a>
+                        <a href="/profile/edit" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <% if (user.role === 'admin') { %>
+                            <div class="dropdown-divider"></div>
+                            <a href="/admin" class="dropdown-item dropdown-item-admin">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Admin Panel</span>
+                            </a>
+                        <% } %>
+                        <div class="dropdown-divider"></div>
+                        <a href="/auth/logout" class="dropdown-item dropdown-item-danger">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Log Out</span>
+                        </a>
+                    </div>
+                </div>
+            <% } else { %>
+                <!-- Guest Actions -->
+                <a href="/auth/login" class="btn btn-ghost">Log In</a>
+                <a href="/auth/register" class="btn btn-primary">Sign Up</a>
+            <% } %>
+            
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+                <span class="hamburger"></span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
+        <div class="mobile-nav-content">
+            <% if (typeof user !== 'undefined' && user) { %>
+                <div class="mobile-user-info">
+                    <% if (user.avatar) { %>
+                        <img src="<%= user.avatar %>" alt="<%= user.firstName %>" class="mobile-user-avatar">
+                    <% } else { %>
+                        <div class="mobile-user-avatar user-avatar-placeholder">
+                            <%= user.firstName.charAt(0) %><%= user.lastName.charAt(0) %>
+                        </div>
+                    <% } %>
+                    <div class="mobile-user-details">
+                        <span class="mobile-user-name"><%= user.firstName %> <%= user.lastName %></span>
+                        <span class="mobile-user-level">Level <%= user.level %> • <%= user.points %> pts</span>
+                    </div>
+                </div>
+                <div class="mobile-nav-divider"></div>
+            <% } %>
+            
+            <a href="/explore" class="mobile-nav-link">
+                <i class="fas fa-compass"></i>
+                <span>Explore Skills</span>
+            </a>
+            
+            <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/dashboard" class="mobile-nav-link">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/sessions" class="mobile-nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Sessions</span>
+                </a>
+                <a href="/messages" class="mobile-nav-link">
+                    <i class="fas fa-comments"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="/profile" class="mobile-nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="/dashboard/achievements" class="mobile-nav-link">
+                    <i class="fas fa-trophy"></i>
+                    <span>Achievements</span>
+                </a>
+                <div class="mobile-nav-divider"></div>
+                <a href="/profile/edit" class="mobile-nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <% if (user.role === 'admin') { %>
+                    <a href="/admin" class="mobile-nav-link mobile-nav-link-admin">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Admin Panel</span>
+                    </a>
+                <% } %>
+                <a href="/auth/logout" class="mobile-nav-link mobile-nav-link-danger">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                </a>
+            <% } else { %>
+                <div class="mobile-nav-divider"></div>
+                <a href="/auth/login" class="mobile-nav-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Log In</span>
+                </a>
+                <a href="/auth/register" class="mobile-nav-link mobile-nav-link-primary">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Sign Up</span>
+                </a>
+            <% } %>
+            
+            <div class="mobile-nav-divider"></div>
+            <a href="/about" class="mobile-nav-link mobile-nav-link-secondary">
+                <i class="fas fa-info-circle"></i>
+                <span>About</span>
+            </a>
+            <a href="/help" class="mobile-nav-link mobile-nav-link-secondary">
+                <i class="fas fa-question-circle"></i>
+                <span>Help & FAQ</span>
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="search-overlay">
+        <div class="search-container">
+            <form action="/explore/search" method="GET" class="search-form">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" 
+                           name="q" 
+                           class="search-input" 
+                           placeholder="Search skills, tutors, categories..." 
+                           autocomplete="off"
+                           id="global-search-input">
+                    <button type="button" class="search-close" id="search-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </form>
+            <div class="search-suggestions" id="search-suggestions">
+                <div class="search-section">
+                    <h4 class="search-section-title">Popular Skills</h4>
+                    <div class="search-tags">
+                        <a href="/explore/skill/Math" class="search-tag">Math</a>
+                        <a href="/explore/skill/Programming" class="search-tag">Programming</a>
+                        <a href="/explore/skill/Guitar" class="search-tag">Guitar</a>
+                        <a href="/explore/skill/Spanish" class="search-tag">Spanish</a>
+                        <a href="/explore/skill/Photography" class="search-tag">Photography</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

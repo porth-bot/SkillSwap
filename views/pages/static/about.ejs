@@ -1,0 +1,259 @@
+<%# About Page - Information about SkillSwap %>
+
+<div class="static-page">
+  <!-- Hero -->
+  <section class="about-hero">
+    <div class="container">
+      <h1>About SkillSwap</h1>
+      <p class="lead">A tutoring app made by students who've been there</p>
+    </div>
+  </section>
+
+  <!-- Story -->
+  <section class="about-section">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-content">
+          <h2>Why we made this</h2>
+          <p>We've all been there—it's 10pm, you have a test tomorrow, and nothing makes sense. Professional tutors are expensive ($40-60/hour!) and your parents can't really help with AP Physics.</p>
+          <p>But you know what? There's probably someone in your school who actually understands this stuff. Maybe they took the class last year, or they're just one of those people who "gets" chemistry. SkillSwap connects you with them.</p>
+          <p>It's not rocket science (unless you need help with that too 🚀). Students helping students. That's it.</p>
+        </div>
+        <div class="about-image">
+          <div class="image-placeholder">
+            <span>📚</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What makes it different -->
+  <section class="about-section alt">
+    <div class="container">
+      <h2 class="section-title">What makes this different</h2>
+      <div class="values-grid">
+        <div class="value-card">
+          <span class="value-icon">🆓</span>
+          <h3>Actually free</h3>
+          <p>No hidden fees, no premium tiers. We're students too—we know $50/hour isn't realistic.</p>
+        </div>
+        <div class="value-card">
+          <span class="value-icon">🎯</span>
+          <h3>Real understanding</h3>
+          <p>Learn from someone who struggled with the same concepts recently. They remember what was confusing.</p>
+        </div>
+        <div class="value-card">
+          <span class="value-icon">🏫</span>
+          <h3>Your school</h3>
+          <p>Connect with people you might see in the hallway. Not random strangers on the internet.</p>
+        </div>
+        <div class="value-card">
+          <span class="value-icon">⚡</span>
+          <h3>Quick help</h3>
+          <p>No booking 2 weeks in advance. Message someone and meet up tomorrow if you both have time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BPA Attribution -->
+  <section class="about-section">
+    <div class="container">
+      <div class="bpa-section">
+        <h2>The fine print</h2>
+        <p>This is a project for BPA (Business Professionals of America) Web Application Development competition. We built it to learn web development AND to solve a real problem we actually have.</p>
+        <p style="color: var(--neutral-500); margin-top: 1rem;"><strong>Built with:</strong> Node.js, Express, MongoDB, and way too much caffeine</p>
+        <p style="color: var(--neutral-500);"><strong>Team:</strong> Wayzata High School BPA Chapter, 2025-2026</p>
+        <div class="bpa-logo">
+          <span>BPA</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="about-cta">
+    <div class="container">
+      <h2>Enough reading, let's go</h2>
+      <p>Sign up takes like 2 minutes. You can always delete it later.</p>
+      <div class="cta-buttons">
+        <a href="/auth/register" class="btn btn-primary btn-lg">Sign Up</a>
+        <a href="/explore" class="btn btn-outline btn-lg">Browse First</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .static-page {
+    margin-top: -1rem;
+  }
+  
+  .about-hero {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
+    color: white;
+    padding: 5rem 0;
+    text-align: center;
+  }
+  
+  .about-hero h1 {
+    font-size: var(--text-4xl);
+    margin: 0 0 1rem 0;
+  }
+  
+  .about-hero .lead {
+    font-size: var(--text-xl);
+    opacity: 0.9;
+    margin: 0;
+  }
+  
+  .about-section {
+    padding: 4rem 0;
+  }
+  
+  .about-section.alt {
+    background: var(--neutral-50);
+  }
+  
+  .section-title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  
+  @media (max-width: 768px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+  
+  .about-content h2 {
+    margin-top: 0;
+  }
+  
+  .about-content p {
+    color: var(--neutral-600);
+    line-height: 1.8;
+    font-size: 1.05rem;
+  }
+  
+  .image-placeholder {
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+  }
+  
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 1024px) {
+    .values-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .values-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .value-card {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .value-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  
+  .value-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+  }
+  
+  .value-card p {
+    color: var(--neutral-600);
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  
+  .bpa-section {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .bpa-section p {
+    color: var(--neutral-600);
+    line-height: 1.7;
+  }
+  
+  .bpa-logo {
+    margin-top: 2rem;
+  }
+  
+  .bpa-logo span {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-600);
+    color: white;
+    font-weight: 700;
+    font-size: var(--text-lg);
+    border-radius: var(--radius-md);
+  }
+  
+  .about-cta {
+    background: linear-gradient(135deg, var(--neutral-800), var(--neutral-900));
+    color: white;
+    padding: 4rem 0;
+    text-align: center;
+  }
+  
+  .about-cta h2 {
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .about-cta p {
+    opacity: 0.8;
+    margin: 0 0 1.5rem 0;
+  }
+  
+  .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .btn-outline {
+    border-color: rgba(255,255,255,0.3);
+    color: white;
+  }
+  
+  .btn-outline:hover {
+    border-color: white;
+    background: rgba(255,255,255,0.1);
+  }
+</style>

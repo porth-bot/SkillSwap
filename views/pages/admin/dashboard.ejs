@@ -1,0 +1,430 @@
+<%# Admin Dashboard - Overview with stats, recent activity, quick actions %>
+
+<div class="admin-layout">
+  <!-- Admin Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-header">
+      <div class="admin-logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">Admin</span>
+      </div>
+    </div>
+    
+    <nav class="admin-nav">
+      <a href="/admin" class="admin-nav-item active">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/users" class="admin-nav-item">
+        <span class="nav-icon">👥</span>
+        <span>Users</span>
+      </a>
+      <a href="/admin/sessions" class="admin-nav-item">
+        <span class="nav-icon">📅</span>
+        <span>Sessions</span>
+      </a>
+      <a href="/admin/reviews" class="admin-nav-item">
+        <span class="nav-icon">⭐</span>
+        <span>Reviews</span>
+      </a>
+      <a href="/admin/reports" class="admin-nav-item">
+        <span class="nav-icon">📈</span>
+        <span>Reports</span>
+      </a>
+      <a href="/admin/audit" class="admin-nav-item">
+        <span class="nav-icon">📋</span>
+        <span>Audit Logs</span>
+      </a>
+    </nav>
+    
+    <div class="admin-sidebar-footer">
+      <a href="/dashboard" class="admin-nav-item">
+        <span class="nav-icon">←</span>
+        <span>Back to App</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <header class="admin-header">
+      <div>
+        <h1 class="admin-title">Dashboard</h1>
+        <p class="admin-subtitle">Welcome back, <%= user.firstName %>. Here's what's happening.</p>
+      </div>
+      <div class="admin-header-actions">
+        <a href="/admin/reports/export" class="btn btn-outline">
+          <span>📥</span> Export Data
+        </a>
+      </div>
+    </header>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: var(--primary-100); color: var(--primary-600);">👥</div>
+        <div class="stat-content">
+          <div class="stat-value"><%= stats.totalUsers.toLocaleString() %></div>
+          <div class="stat-label">Total Users</div>
+          <div class="stat-change positive">
+            <span>↑</span> <%= stats.newUsersThisWeek %> this week
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background: var(--accent-100); color: var(--accent-600);">📅</div>
+        <div class="stat-content">
+          <div class="stat-value"><%= stats.totalSessions.toLocaleString() %></div>
+          <div class="stat-label">Total Sessions</div>
+          <div class="stat-change positive">
+            <span>↑</span> <%= stats.sessionsThisWeek %> this week
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background: var(--success-100); color: var(--success-600);">⭐</div>
+        <div class="stat-content">
+          <div class="stat-value"><%= stats.totalReviews.toLocaleString() %></div>
+          <div class="stat-label">Reviews</div>
+          <div class="stat-change">
+            <span>📊</span> <%= stats.averageRating.toFixed(1) %> avg rating
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background: var(--warning-100); color: var(--warning-600);">🎯</div>
+        <div class="stat-content">
+          <div class="stat-value"><%= stats.activeSkills.toLocaleString() %></div>
+          <div class="stat-label">Active Skills</div>
+          <div class="stat-change">
+            <span>📚</span> being taught
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="admin-grid-2">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">User Growth</h3>
+          <select class="form-select" style="width: auto;" id="userGrowthPeriod">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="sessionChart" data-stats='{"labels":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"values":[<%= (stats.userGrowth || [10, 15, 12, 18, 22, 25, 30]).join(',') %>]}'></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Sessions by Status</h3>
+        </div>
+        <div class="card-body">
+          <div class="status-breakdown">
+            <div class="status-item">
+              <div class="status-bar">
+                <div class="status-fill" style="width: <%= (stats.sessionsByStatus?.completed || 45) %>%; background: var(--success-500);"></div>
+              </div>
+              <div class="status-info">
+                <span class="status-label">Completed</span>
+                <span class="status-value"><%= stats.sessionsByStatus?.completed || 45 %>%</span>
+              </div>
+            </div>
+            <div class="status-item">
+              <div class="status-bar">
+                <div class="status-fill" style="width: <%= (stats.sessionsByStatus?.scheduled || 30) %>%; background: var(--primary-500);"></div>
+              </div>
+              <div class="status-info">
+                <span class="status-label">Scheduled</span>
+                <span class="status-value"><%= stats.sessionsByStatus?.scheduled || 30 %>%</span>
+              </div>
+            </div>
+            <div class="status-item">
+              <div class="status-bar">
+                <div class="status-fill" style="width: <%= (stats.sessionsByStatus?.pending || 15) %>%; background: var(--warning-500);"></div>
+              </div>
+              <div class="status-info">
+                <span class="status-label">Pending</span>
+                <span class="status-value"><%= stats.sessionsByStatus?.pending || 15 %>%</span>
+              </div>
+            </div>
+            <div class="status-item">
+              <div class="status-bar">
+                <div class="status-fill" style="width: <%= (stats.sessionsByStatus?.cancelled || 10) %>%; background: var(--error-500);"></div>
+              </div>
+              <div class="status-info">
+                <span class="status-label">Cancelled</span>
+                <span class="status-value"><%= stats.sessionsByStatus?.cancelled || 10 %>%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity & Quick Actions -->
+    <div class="admin-grid-2">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Recent Activity</h3>
+          <a href="/admin/audit" class="btn btn-ghost btn-sm">View All</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="activity-feed">
+            <% if (recentActivity && recentActivity.length > 0) { %>
+              <% recentActivity.slice(0, 8).forEach(activity => { %>
+                <div class="activity-item">
+                  <div class="activity-icon <%= activity.type %>">
+                    <% if (activity.type === 'user') { %>👤
+                    <% } else if (activity.type === 'session') { %>📅
+                    <% } else if (activity.type === 'review') { %>⭐
+                    <% } else { %>📋<% } %>
+                  </div>
+                  <div class="activity-content">
+                    <p class="activity-text"><%= activity.description %></p>
+                    <span class="activity-time"><%= activity.timeAgo %></span>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="empty-state small">
+                <p>No recent activity</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Quick Actions</h3>
+        </div>
+        <div class="card-body">
+          <div class="quick-actions">
+            <a href="/admin/users?status=pending" class="quick-action-item">
+              <span class="quick-action-icon">👤</span>
+              <span class="quick-action-text">
+                <strong>Pending Users</strong>
+                <small><%= stats.pendingUsers || 0 %> awaiting review</small>
+              </span>
+              <span class="quick-action-arrow">→</span>
+            </a>
+            <a href="/admin/reviews?status=flagged" class="quick-action-item">
+              <span class="quick-action-icon">🚩</span>
+              <span class="quick-action-text">
+                <strong>Flagged Reviews</strong>
+                <small><%= stats.flaggedReviews || 0 %> need attention</small>
+              </span>
+              <span class="quick-action-arrow">→</span>
+            </a>
+            <a href="/admin/sessions?status=disputed" class="quick-action-item">
+              <span class="quick-action-icon">⚠️</span>
+              <span class="quick-action-text">
+                <strong>Session Disputes</strong>
+                <small><%= stats.disputedSessions || 0 %> to resolve</small>
+              </span>
+              <span class="quick-action-arrow">→</span>
+            </a>
+            <a href="/admin/reports" class="quick-action-item">
+              <span class="quick-action-icon">📊</span>
+              <span class="quick-action-text">
+                <strong>Generate Report</strong>
+                <small>Export data & analytics</small>
+              </span>
+              <span class="quick-action-arrow">→</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Skills & Recent Users -->
+    <div class="admin-grid-2">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Popular Skills</h3>
+        </div>
+        <div class="card-body p-0">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Skill</th>
+                <th>Tutors</th>
+                <th>Sessions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (topSkills && topSkills.length > 0) { %>
+                <% topSkills.slice(0, 5).forEach(skill => { %>
+                  <tr>
+                    <td>
+                      <span class="skill-tag"><%= skill.name %></span>
+                    </td>
+                    <td><%= skill.tutorCount %></td>
+                    <td><%= skill.sessionCount %></td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="3" class="text-center text-muted">No skills data yet</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">New Users</h3>
+          <a href="/admin/users" class="btn btn-ghost btn-sm">View All</a>
+        </div>
+        <div class="card-body p-0">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (recentUsers && recentUsers.length > 0) { %>
+                <% recentUsers.slice(0, 5).forEach(u => { %>
+                  <tr>
+                    <td>
+                      <div class="user-cell">
+                        <div class="avatar avatar-sm">
+                          <% if (u.avatar) { %>
+                            <img src="<%= u.avatar %>" alt="<%= u.firstName %>">
+                          <% } else { %>
+                            <span><%= u.firstName.charAt(0) %><%= u.lastName.charAt(0) %></span>
+                          <% } %>
+                        </div>
+                        <span><%= u.firstName %> <%= u.lastName %></span>
+                      </div>
+                    </td>
+                    <td><span class="badge badge-<%= u.role === 'tutor' ? 'primary' : u.role === 'admin' ? 'warning' : 'secondary' %>"><%= u.role %></span></td>
+                    <td><%= new Date(u.createdAt).toLocaleDateString() %></td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="3" class="text-center text-muted">No users yet</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<style>
+  /* Admin-specific styles */
+  .chart-placeholder {
+    padding: 1rem 0;
+  }
+  
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 150px;
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+  }
+  
+  .chart-bar {
+    flex: 1;
+    background: linear-gradient(to top, var(--primary-500), var(--primary-400));
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    position: relative;
+    min-height: 10px;
+    transition: var(--transition-fast);
+  }
+  
+  .chart-bar:hover {
+    background: linear-gradient(to top, var(--primary-600), var(--primary-500));
+  }
+  
+  .chart-bar-value {
+    position: absolute;
+    top: -1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--neutral-600);
+    opacity: 0;
+    transition: var(--transition-fast);
+  }
+  
+  .chart-bar:hover .chart-bar-value {
+    opacity: 1;
+  }
+  
+  .chart-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    font-size: var(--text-xs);
+    color: var(--neutral-500);
+  }
+  
+  .status-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .status-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .status-bar {
+    height: 8px;
+    background: var(--neutral-100);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+  
+  .status-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.5s ease;
+  }
+  
+  .status-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-sm);
+  }
+  
+  .status-label {
+    color: var(--neutral-600);
+  }
+  
+  .status-value {
+    font-weight: 600;
+    color: var(--neutral-700);
+  }
+  
+  .user-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+</style>

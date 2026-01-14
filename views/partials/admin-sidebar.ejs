@@ -1,0 +1,118 @@
+<%# Admin Sidebar Partial - Include with active: 'dashboard' | 'users' | 'sessions' | 'reviews' | 'reports' | 'audit' %>
+
+<aside class="admin-sidebar">
+  <div class="admin-sidebar-header">
+    <a href="/admin" class="admin-logo">
+      <span class="logo-icon">⚡</span>
+      <span class="logo-text">SkillSwap</span>
+    </a>
+    <span class="admin-badge">Admin</span>
+  </div>
+  
+  <nav class="admin-nav">
+    <a href="/admin" class="admin-nav-item <%= active === 'dashboard' ? 'active' : '' %>">
+      <span class="nav-icon">📊</span>
+      <span>Dashboard</span>
+    </a>
+    <a href="/admin/users" class="admin-nav-item <%= active === 'users' ? 'active' : '' %>">
+      <span class="nav-icon">👥</span>
+      <span>Users</span>
+      <% if (typeof pendingUsers !== 'undefined' && pendingUsers > 0) { %>
+        <span class="nav-badge"><%= pendingUsers %></span>
+      <% } %>
+    </a>
+    <a href="/admin/sessions" class="admin-nav-item <%= active === 'sessions' ? 'active' : '' %>">
+      <span class="nav-icon">📅</span>
+      <span>Sessions</span>
+    </a>
+    <a href="/admin/reviews" class="admin-nav-item <%= active === 'reviews' ? 'active' : '' %>">
+      <span class="nav-icon">⭐</span>
+      <span>Reviews</span>
+      <% if (typeof flaggedReviews !== 'undefined' && flaggedReviews > 0) { %>
+        <span class="nav-badge warning"><%= flaggedReviews %></span>
+      <% } %>
+    </a>
+    <a href="/admin/reports" class="admin-nav-item <%= active === 'reports' ? 'active' : '' %>">
+      <span class="nav-icon">📈</span>
+      <span>Reports</span>
+    </a>
+    <a href="/admin/audit" class="admin-nav-item <%= active === 'audit' ? 'active' : '' %>">
+      <span class="nav-icon">📋</span>
+      <span>Audit Logs</span>
+    </a>
+  </nav>
+  
+  <div class="admin-sidebar-footer">
+    <div class="admin-user">
+      <div class="avatar avatar-sm">
+        <% if (typeof user !== 'undefined' && user.avatar) { %>
+          <img src="<%= user.avatar %>" alt="<%= user.firstName %>">
+        <% } else if (typeof user !== 'undefined') { %>
+          <span><%= user.firstName.charAt(0) %><%= user.lastName.charAt(0) %></span>
+        <% } else { %>
+          <span>A</span>
+        <% } %>
+      </div>
+      <div class="admin-user-info">
+        <span class="admin-user-name"><%= typeof user !== 'undefined' ? user.firstName : 'Admin' %></span>
+        <span class="admin-user-role">Administrator</span>
+      </div>
+    </div>
+    <a href="/dashboard" class="admin-nav-item">
+      <span class="nav-icon">←</span>
+      <span>Back to App</span>
+    </a>
+  </div>
+</aside>
+
+<style>
+  .admin-badge {
+    background: var(--warning-100);
+    color: var(--warning-700);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .nav-badge {
+    background: var(--primary-500);
+    color: white;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-full);
+    margin-left: auto;
+  }
+  
+  .nav-badge.warning {
+    background: var(--warning-500);
+  }
+  
+  .admin-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-top: 1px solid var(--neutral-200);
+    margin-bottom: 0.5rem;
+  }
+  
+  .admin-user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .admin-user-name {
+    font-weight: 500;
+    font-size: var(--text-sm);
+    color: var(--neutral-800);
+  }
+  
+  .admin-user-role {
+    font-size: var(--text-xs);
+    color: var(--neutral-500);
+  }
+</style>
