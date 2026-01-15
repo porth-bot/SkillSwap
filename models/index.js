@@ -1,9 +1,7 @@
-// export all models
+// models/index.js
+const User = require('./User');
+const Session = require('./Session');
+const Review = require('./Review');
+const Message = require('./Message');
 
-module.exports = {
-    User: require('./User'),
-    Session: require('./Session'),
-    Review: require('./Review'),
-    Message: require('./Message'),
-    AuditLog: require('./AuditLog')
-};
+module.exports = { User, Session, Review, Message };

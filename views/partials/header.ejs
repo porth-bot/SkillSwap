@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> | SkillSwap</title>
+    <title><%= typeof title !== 'undefined' ? title : 'SkillSwap' %> | SkillSwap</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <nav class="navbar">
-        <div class="container nav-content">
+        <div class="container">
             <a href="/" class="logo">⚡ SkillSwap</a>
             <div class="nav-links">
                 <a href="/explore">Find Tutors</a>
-                <% if (user) { %>
+                <% if (typeof user !== 'undefined' && user) { %>
                     <a href="/dashboard">Dashboard</a>
                     <a href="/sessions">Sessions</a>
                     <a href="/messages">Messages</a>
@@ -28,23 +28,10 @@
             </div>
         </div>
     </nav>
-
-    <% if (success && success.length) { %>
-        <div class="alert alert-success"><%= success %></div>
+    <% if (typeof success !== 'undefined' && success && success.length) { %>
+        <div class="container"><div class="alert alert-success"><%= success %></div></div>
     <% } %>
-    <% if (error && error.length) { %>
-        <div class="alert alert-error"><%= error %></div>
+    <% if (typeof error !== 'undefined' && error && error.length) { %>
+        <div class="container"><div class="alert alert-error"><%= error %></div></div>
     <% } %>
-
-    <main class="main-content">
-        <%- body %>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 SkillSwap - Wayzata High School BPA</p>
-        </div>
-    </footer>
-    <script src="/js/main.js"></script>
-</body>
-</html>
+    <main>

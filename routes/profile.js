@@ -1,13 +1,10 @@
-/**
- * Profile Routes - SkillSwap
- */
-
+// routes/profile.js
 const express = require('express');
 const router = express.Router();
-const { User, Review, Session, AuditLog } = require('../models');
+const { User } = require('../models');
 const { isAuthenticated } = require('../middleware');
 
-// GET /profile - View own profile
+// GET /profile
 router.get('/', isAuthenticated, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
@@ -19,8 +16,8 @@ router.get('/', isAuthenticated, async (req, res) => {
             sessionStats: { completed: 0, total: 0 },
             recentReviews: []
         });
-    } catch (error) {
-        console.error('Profile error:', error);
+    } catch (err) {
+        console.error(err);
         res.redirect('/dashboard');
     }
 });
@@ -29,11 +26,8 @@ router.get('/', isAuthenticated, async (req, res) => {
 router.get('/edit', isAuthenticated, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
-        res.render('pages/profile/edit', {
-            title: 'Edit Profile',
-            user
-        });
-    } catch (error) {
+        res.render('pages/profile/edit', { title: 'Edit Profile', user });
+    } catch (err) {
         res.redirect('/profile');
     }
 });
@@ -42,45 +36,36 @@ router.get('/edit', isAuthenticated, async (req, res) => {
 router.post('/edit', isAuthenticated, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
-        
-        const allowedFields = ['firstName', 'lastName', 'bio', 'grade', 'school'];
-        allowedFields.forEach(field => {
-            if (req.body[field] !== undefined) {
-                user[field] = req.body[field];
-            }
+        ['firstName', 'lastName', 'bio', 'grade', 'school'].forEach(field => {
+            if (req.body[field]) user[field] = req.body[field];
         });
-
         await user.save();
         req.flash('success', 'Profile updated');
         res.redirect('/profile');
-    } catch (error) {
-        console.error('Profile update error:', error);
-        req.flash('error', 'Failed to update profile');
+    } catch (err) {
+        console.error(err);
+        req.flash('error', 'Update failed');
         res.redirect('/profile/edit');
     }
 });
 
-// GET /profile/:username - View public profile
+// GET /profile/:username
 router.get('/:username', async (req, res) => {
     try {
-        const user = await User.findOne({ username: req.params.username, isActive: true });
-        
+        const user = await User.findOne({ username: req.params.username });
         if (!user) {
             req.flash('error', 'User not found');
             return res.redirect('/explore');
         }
-
-        const isOwnProfile = req.session?.userId?.toString() === user._id.toString();
-
         res.render('pages/profile/view', {
-            title: user.firstName + ' ' + user.lastName,
+            title: user.firstName,
             profile: user,
-            isOwnProfile,
+            isOwnProfile: req.session?.userId?.toString() === user._id.toString(),
             reviewStats: { average: 0, count: 0 },
             sessionStats: { completed: 0, total: 0 },
             recentReviews: []
         });
-    } catch (error) {
+    } catch (err) {
         res.redirect('/explore');
     }
 });
@@ -89,14 +74,11 @@ router.get('/:username', async (req, res) => {
 router.post('/skills/offered', isAuthenticated, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
-        const { name, category, proficiencyLevel, description } = req.body;
-
-        user.skillsOffered.push({ name, category, proficiencyLevel, description });
+        user.skillsOffered.push(req.body);
         await user.save();
-
-        res.json({ success: true, message: 'Skill added' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Failed to add skill' });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false });
     }
 });
 
@@ -104,15 +86,10 @@ router.post('/skills/offered', isAuthenticated, async (req, res) => {
 router.delete('/skills/offered/:index', isAuthenticated, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
-        const index = parseInt(req.params.index);
-        
-        if (index >= 0 && index < user.skillsOffered.length) {
-            user.skillsOffered.splice(index, 1);
-            await user.save();
-        }
-
+        user.skillsOffered.splice(parseInt(req.params.index), 1);
+        await user.save();
         res.json({ success: true });
-    } catch (error) {
+    } catch (err) {
         res.status(500).json({ success: false });
     }
 });
@@ -121,14 +98,11 @@ router.delete('/skills/offered/:index', isAuthenticated, async (req, res) => {
 router.post('/skills/sought', isAuthenticated, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
-        const { name, category, proficiencyLevel, description } = req.body;
-
-        user.skillsSought.push({ name, category, proficiencyLevel, description });
+        user.skillsSought.push(req.body);
         await user.save();
-
-        res.json({ success: true, message: 'Skill added' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Failed to add skill' });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false });
     }
 });
 
@@ -136,15 +110,10 @@ router.post('/skills/sought', isAuthenticated, async (req, res) => {
 router.delete('/skills/sought/:index', isAuthenticated, async (req, res) => {
     try {
         const user = await User.findById(req.session.userId);
-        const index = parseInt(req.params.index);
-        
-        if (index >= 0 && index < user.skillsSought.length) {
-            user.skillsSought.splice(index, 1);
-            await user.save();
-        }
-
+        user.skillsSought.splice(parseInt(req.params.index), 1);
+        await user.save();
         res.json({ success: true });
-    } catch (error) {
+    } catch (err) {
         res.status(500).json({ success: false });
     }
 });

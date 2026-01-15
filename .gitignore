@@ -1,22 +1,3 @@
-# dependencies
 node_modules/
-
-# environment files (IMPORTANT - contains secrets!)
 .env
-.env.local
-.env.production
-
-# logs
 *.log
-npm-debug.log*
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-
-# misc
-*.zip

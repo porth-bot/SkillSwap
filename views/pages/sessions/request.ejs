@@ -1,0 +1,36 @@
+<%- include('../../partials/header') %>
+<div class="container">
+    <h1>Request Session with <%= tutor.firstName %></h1>
+    <form method="POST" action="/sessions/request/<%= tutor._id %>" class="form-card">
+        <div class="form-group">
+            <label>Skill</label>
+            <select name="skill" required>
+                <% tutor.skillsOffered.forEach(s => { %>
+                    <option value="<%= s.name %>"><%= s.name %></option>
+                <% }) %>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Date & Time</label>
+            <input type="datetime-local" name="scheduledDate" required>
+        </div>
+        <div class="form-group">
+            <label>Duration (minutes)</label>
+            <select name="duration">
+                <option value="30">30 min</option>
+                <option value="45">45 min</option>
+                <option value="60" selected>60 min</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Location</label>
+            <input type="text" name="location" placeholder="Library, online, etc.">
+        </div>
+        <div class="form-group">
+            <label>Notes</label>
+            <textarea name="notes" rows="3" placeholder="What do you need help with?"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send Request</button>
+    </form>
+</div>
+<%- include('../../partials/footer') %>
